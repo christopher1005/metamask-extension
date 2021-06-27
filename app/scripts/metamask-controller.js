@@ -25,7 +25,7 @@ import {
   PhishingController,
   NotificationController,
   GasFeeController,
-  TokenListController,
+  TokenListController
 } from '@metamask/controllers';
 import { TRANSACTION_STATUSES } from '../../shared/constants/transaction';
 import { MAINNET_CHAIN_ID } from '../../shared/constants/network';
@@ -232,6 +232,15 @@ export default class MetamaskController extends EventEmitter {
       messenger: currencyRateMessenger,
       state: initState.CurrencyController,
     });
+    const tokenListMessenger = controllerMessenger.getRestricted({
+      name: 'TokenListController',
+    });
+    this.tokenListController = new TokenListController({
+      chainId: this.networkController.getCurrentChainId(),
+      onNetworkStateChange: this.networkController.store.subscribe.bind(this.networkController.store),
+      messenger: tokenListMessenger,
+      state: initState.tokenListController,
+    });
 
     const tokenListMessenger = this.controllerMessenger.getRestricted({
       name: 'TokenListController',
@@ -372,6 +381,7 @@ export default class MetamaskController extends EventEmitter {
       preferences: this.preferencesController,
       network: this.networkController,
       keyringMemStore: this.keyringController.memStore,
+      tokenList: this.tokenListController
     });
 
     this.addressBookController = new AddressBookController(
