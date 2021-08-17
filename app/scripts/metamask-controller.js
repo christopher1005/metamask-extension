@@ -237,7 +237,7 @@ export default class MetamaskController extends EventEmitter {
     });
     this.tokenListController = new TokenListController({
       chainId: hexToDecimal(this.networkController.getCurrentChainId()),
-      useStaticTokenList: this.preferencesController.store.getState()
+      useStaticTokenList: !this.preferencesController.store.getState()
         .useStaticTokenList,
       onNetworkStateChange: (cb) =>
         this.networkController.store.subscribe((networkState) => {
@@ -250,9 +250,15 @@ export default class MetamaskController extends EventEmitter {
           };
           return cb(modifiedNetworkState);
         }),
-      onPreferencesStateChange: this.preferencesController.store.subscribe.bind(
-        this.preferencesController.store,
-      ),
+      onPreferencesStateChange: (cb) =>
+        this.preferencesController.store.subscribe((preferencesState) => {
+          const modifiedPreferencesState = {
+            ...preferencesState,
+            useStaticTokenList: !this.preferencesController.store.getState()
+              .useStaticTokenList,
+          };
+          return cb(modifiedPreferencesState);
+        }),
       messenger: tokenListMessenger,
       state: initState.TokenListController,
     });
@@ -1311,7 +1317,7 @@ export default class MetamaskController extends EventEmitter {
             ? accountTokens[address][chainId].filter(
                 ({ address: tokenAddress }) => {
                   const checksumAddress = toChecksumHexAddress(tokenAddress);
-                  return this.preferencesController.store.getState()
+                  return !this.preferencesController.store.getState()
                     .useStaticTokenList && tokenList[checksumAddress]
                     ? tokenList[checksumAddress].erc20
                     : true;
