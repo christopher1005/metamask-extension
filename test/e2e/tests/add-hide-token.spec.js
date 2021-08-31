@@ -23,9 +23,14 @@ describe('Hide token', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        // close the what's new popup
+        const popover = await driver.findElement('.popover-container');
+        await driver.clickElement('[data-testid="popover-close"]');
+        await popover.waitForElementState('hidden');
+
         await driver.waitForSelector({
           css: '.asset-list-item__token-button',
-          text: '0 TST',
+          text: '25 TST',
         });
         await driver.clickElement('.popover-header__button');
 
